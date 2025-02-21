@@ -87,7 +87,7 @@ enum class MoleType(val points: Int, val color: Color, val label: String) {
     NONE(0, Color.Gray, ""),              // No mole
     REGULAR(1000, Color.Green, "MOLE"),     // Regular mole
     GOLDEN(250, Color.Yellow, "GOLD"),     // Golden mole (higher points)
-    BOMB(-15, Color.Red, "BOMB")          // Bomb mole (lose points)
+    BOMB(-15, Color.Transparent, "BOMB")          // Bomb mole (lose points)
 }
 enum class Difficulty(val spawnChance: Int, val updateInterval: Long) {
     EASY(6, 5000L),    // 1/6 chance (~16%), updates every 1.5s
@@ -107,99 +107,9 @@ fun WhackAMoleGame(viewModel: GameViewModel = viewModel()) {
     when {
         viewModel.isSettingsVisible -> SettingsScreen(viewModel)
         viewModel.isGameScreenVisible -> GameScreen(viewModel)
+        viewModel.isLeaderboardVisible -> LeaderboardScreen(viewModel)
         else -> SplashScreen(viewModel)
     }
 
 }
 
-@Composable
-fun GameGrid(viewModel: GameViewModel, hammerPosition: Offset, isHammerWhacking: Boolean) {
-    val density = LocalDensity.current
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(5),
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-    ) {
-
-        items(25) { index ->
-            MoleHole(
-                moleType = viewModel.moleStates[index],
-                difficulty = viewModel.difficultyy, // Fixed typo: difficultyy -> difficulty
-                position = with(density) {
-                    Offset(
-                        (index % 5 * 76 + 38).dp.toPx(), // Adjusted for 60dp + 16dp total padding
-                        (index / 5 * 76 + 38 + 120).dp.toPx() // Adjusted offset for UI
-                    )
-                },
-                hammerPosition = hammerPosition,
-                isHammerWhacking = isHammerWhacking,
-                onWhack = { viewModel.whackMole(index) }
-            )
-        }
-    }
-}
-@Composable
-fun MoleHole(
-    moleType: MoleType,
-    difficulty: Difficulty,
-    position: Offset,
-    hammerPosition: Offset,
-    isHammerWhacking: Boolean,
-    onWhack: () -> Unit
-) {
-    val isMoleVisible = moleType != MoleType.NONE
-    val density = LocalDensity.current
-
-    val scale by animateFloatAsState(
-        targetValue = if (isMoleVisible) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "moleScale"
-    )
-
-    LaunchedEffect(isHammerWhacking) {
-        if (isHammerWhacking && isMoleVisible) {
-            val distance = kotlin.math.sqrt(
-                (hammerPosition.x - position.x).pow(2) + (hammerPosition.y - position.y).pow(2)
-            )
-            with(density) {
-                if (distance < 50.dp.toPx()) {
-                    onWhack()
-                }
-            }
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .size(60.dp)
-            .padding(8.dp)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.hole2), // Replace with your hole image
-            contentDescription = "Hole",
-            modifier = Modifier.fillMaxSize()
-        )
-        if (isMoleVisible) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scale(scale)
-                    .clip(CircleShape)
-                    .background(moleType.color)
-            ) {
-                if (scale > 0f) {
-                    Image(
-                        painter = painterResource(id = R.drawable.mole),
-                        contentDescription = "Mole",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-        }
-    }
-}

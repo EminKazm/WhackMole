@@ -2,6 +2,7 @@ package com.syntax.whackmole
 
 import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
@@ -71,19 +73,34 @@ fun SplashScreen(viewModel: GameViewModel) {
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
                     onClick = { viewModel.showGameScreen() },
                     modifier = Modifier.width(150.dp).height(60.dp)
+                        .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
                 ) {
                     Text("Play", fontSize = 24.sp)
                 }
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(
+                    onClick = { viewModel.showLeaderboard() },
+                    modifier = Modifier.width(150.dp).height(60.dp)
+                        .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
+                ) {
+                    Text("Leaderboard", fontSize = 16.sp)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = { viewModel.showSettings() },
                     modifier = Modifier.width(150.dp).height(60.dp)
+                        .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
                 ) {
                     Text("Settings", fontSize = 24.sp)
                 }

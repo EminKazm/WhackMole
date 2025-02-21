@@ -22,8 +22,13 @@ class GameViewModel : ViewModel() {
     var isGameRunning by mutableStateOf(false) // Track game state
     var isGameScreenVisible by mutableStateOf(false) // Tracks if game screen is shown
     var isSettingsVisible by mutableStateOf(false) // New: Settings visibility
+    var isGameOver by mutableStateOf(false) // New: Track game over state
+    var isLeaderboardVisible by mutableStateOf(false) // New: Leaderboard visibility
+
     var isSoundEnableds by mutableStateOf(true) // New: Sound toggle
     var hammerSkins by mutableStateOf(HammerSkin.DEFAULT) // New: Hammer skin selection
+    var topScores by mutableStateOf(listOf<Int>()) // New: Top 5 scores
+
     private var moleUpdateJob: Job? = null
 
     private var gameJob: Job? = null
@@ -36,12 +41,26 @@ class GameViewModel : ViewModel() {
         highScore = sharedPrefs.getInt("highScore", 0) // Load high score on init
         isSoundEnableds = sharedPrefs.getBoolean("isSoundEnabled", true)
         hammerSkins = HammerSkin.values()[sharedPrefs.getInt("hammerSkin", 0)]
+        loadTopScores() // Load top scores on initialization
+
         tickPlayer = MediaPlayer.create(context, R.raw.tick).apply {
             isLooping = true
         }
         whackPlayer = MediaPlayer.create(context, R.raw.mole_whack)
     }
-
+    private fun loadTopScores() {
+        val scores = (0 until 5).map { index ->
+            sharedPrefs.getInt("topScore$index", 0)
+        }.filter { it > 0 }.sortedDescending()
+        topScores = scores.take(5)
+    }
+    private fun saveTopScores() {
+        val updatedScores = (topScores + score).sortedDescending().take(5)
+        topScores = updatedScores
+        updatedScores.forEachIndexed { index, value ->
+            sharedPrefs.edit().putInt("topScore$index", value).apply()
+        }
+    }
     fun setDifficulty(newDifficulty: Difficulty) {
         difficultyy = newDifficulty
     }
@@ -56,7 +75,11 @@ class GameViewModel : ViewModel() {
     }
     fun showGameScreen() {
         isGameScreenVisible = true
-        isGameRunning = false // Ensure game isn’t running yet
+        isSettingsVisible = false
+        isGameRunning = false
+        isGameOver = false
+        isLeaderboardVisible = false
+
         score = 0
         timeLeft = 30
         moleStates = List(25) { MoleType.NONE }
@@ -64,8 +87,17 @@ class GameViewModel : ViewModel() {
     fun showSettings() {
         isSettingsVisible = true
         isGameScreenVisible = false
-    }
+        isLeaderboardVisible = false
 
+    }
+    fun showLeaderboard() {
+        isLeaderboardVisible = true
+        isGameScreenVisible = false
+        isSettingsVisible = false
+    }
+    fun hideLeaderboard() {
+        isLeaderboardVisible = false
+    }
     fun hideSettings() {
         isSettingsVisible = false
     }
@@ -85,6 +117,7 @@ class GameViewModel : ViewModel() {
         timeLeft = 30
         moleStates = List(25) { MoleType.NONE }
         isGameRunning = true
+        isGameOver = false // Reset game over state
 
         if (isSoundEnableds) tickPlayer?.start()
 
@@ -100,7 +133,10 @@ class GameViewModel : ViewModel() {
             }
             tickPlayer?.pause()
             updateHighScore()
+            saveTopScores() // Save scores when game ends
+
             isGameRunning = false // Game ends, stay on game screen
+            isGameOver = true // Trigger game over dialog
 
 
         }
@@ -114,6 +150,7 @@ class GameViewModel : ViewModel() {
     }
 
     private fun updateMoles() {
+        if (!isGameRunning) return
         moleStates = moleStates.map {
             if (Random.nextInt(difficultyy.spawnChance) == 0) { // 20% chance of a mole appearing
                 when (Random.nextInt(100)) {
