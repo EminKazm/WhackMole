@@ -1,8 +1,12 @@
 package com.syntax.whackmole
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
@@ -43,6 +48,15 @@ fun MoleHole(
         label = "moleScale"
     )
 
+    // Wiggle animation
+    val wiggle by animateFloatAsState(
+        targetValue = if (isMoleVisible) 5f else 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "moleWiggle"
+    )
     LaunchedEffect(isHammerWhacking) {
         if (isHammerWhacking && isMoleVisible) {
             val distance = kotlin.math.sqrt(
@@ -71,6 +85,8 @@ fun MoleHole(
                 modifier = Modifier
                     .fillMaxSize()
                     .scale(scale)
+                    .rotate(wiggle) // Apply wiggle effect
+
                     .clip(CircleShape)
                     .background(moleType.color)
             ) {
@@ -81,7 +97,22 @@ fun MoleHole(
                             contentDescription = "Bomb",
                             modifier = Modifier.size(60.dp)
                         )
-                    }else{
+                    }
+                    else if (moleType.label=="TIME"){
+                        Image(
+                            painter = painterResource(id = R.drawable.time),
+                            contentDescription = "Time",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    else if (moleType.label=="GOLD"){
+                        Image(
+                            painter = painterResource(id = R.drawable.mole2),
+                            contentDescription = "Golden",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    else{
                         Image(
                             painter = painterResource(id = R.drawable.mole),
                             contentDescription = "Mole",

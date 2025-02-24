@@ -83,11 +83,12 @@ class MainActivity : ComponentActivity() {
 }
 @Stable
 // Define Mole types
-enum class MoleType(val points: Int, val color: Color, val label: String) {
+enum class MoleType(val points: Int, val color: Color, val label: String,val time:Int=0) {
     NONE(0, Color.Gray, ""),              // No mole
-    REGULAR(1000, Color.Green, "MOLE"),     // Regular mole
-    GOLDEN(250, Color.Yellow, "GOLD"),     // Golden mole (higher points)
-    BOMB(-15, Color.Transparent, "BOMB")          // Bomb mole (lose points)
+    REGULAR(1000, Color.Transparent, "MOLE"),     // Regular mole
+    GOLDEN(250, Color.Transparent, "GOLD"),     // Golden mole (higher points)
+    BOMB(-15, Color.Transparent, "BOMB"),
+    TIME(0, Color.Transparent, "TIME",5)// Bomb mole (lose points)
 }
 enum class Difficulty(val spawnChance: Int, val updateInterval: Long) {
     EASY(6, 5000L),    // 1/6 chance (~16%), updates every 1.5s
@@ -108,6 +109,8 @@ fun WhackAMoleGame(viewModel: GameViewModel = viewModel()) {
         viewModel.isSettingsVisible -> SettingsScreen(viewModel)
         viewModel.isGameScreenVisible -> GameScreen(viewModel)
         viewModel.isLeaderboardVisible -> LeaderboardScreen(viewModel)
+        viewModel.isGuideVisible -> GuideScreen(viewModel) // New: Show guide first
+
         else -> SplashScreen(viewModel)
     }
 

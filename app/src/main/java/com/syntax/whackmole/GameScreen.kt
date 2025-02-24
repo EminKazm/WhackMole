@@ -1,5 +1,6 @@
 package com.syntax.whackmole
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -39,6 +40,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
@@ -82,32 +84,42 @@ fun GameScreen(viewModel: GameViewModel) {
                 }
             }
     ) {
-
+        val bgRes = when (viewModel.difficultyy) {
+            Difficulty.EASY -> R.drawable.bg_easy
+            Difficulty.MEDIUM -> R.drawable.bg_medium
+            Difficulty.HARD -> R.drawable.bg_hard
+        }
+        Image(
+            painter = painterResource(id = bgRes),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Score: ${viewModel.score}", fontSize = 20.sp)
-                Text("High Score: ${viewModel.highScore}", fontSize = 20.sp)
+                Text("Score: ${viewModel.score}", fontSize = 20.sp, color = Color.DarkGray)
+                Text("High Score: ${viewModel.highScore}", fontSize = 20.sp, color = Color.DarkGray)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Difficulty: ${viewModel.difficultyy.name}", fontSize = 20.sp) // Fixed typo
-                Text("Time: ${viewModel.timeLeft}s", fontSize = 20.sp)
+                Text("Difficulty: ${viewModel.difficultyy.name}", fontSize = 20.sp, color = Color.DarkGray) // Fixed typo
+                Text("Time: ${viewModel.timeLeft}s", fontSize = 20.sp, color = Color.DarkGray)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             GameGrid(viewModel, hammerPosition, isHammerWhacking)
 
@@ -153,6 +165,8 @@ fun GameScreen(viewModel: GameViewModel) {
 }
 @Composable
 fun GameOverDialog(viewModel: GameViewModel) {
+    val context = LocalContext.current
+
     Dialog(onDismissRequest = { /* Do nothing to prevent dismissal by clicking outside */ }) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -205,9 +219,28 @@ fun GameOverDialog(viewModel: GameViewModel) {
                             .height(50.dp)
                             .border(width = 2.dp, color = Color.LightGray, shape = CircleShape), // Border added
                         shape = CircleShape, // Circular shape
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)                     ) {
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
+                    )
+                    {
                         Text("Menu", fontSize = 15.sp)
-                    }
+                   }
+//                    Button(onClick = {
+//                        val intent = Intent(Intent.ACTION_SEND).apply {
+//                            type = "text/plain"
+//                            putExtra(Intent.EXTRA_TEXT, "I scored ${viewModel.score} in Whack-a-Mole! Download here : https://play.google.com/store/apps/details?id=com.syntax.focusbooster")
+//                        }
+//                        context.startActivity(Intent.createChooser(intent, "Share Score"))
+//                    },
+//                        modifier = Modifier
+//                            .width(100.dp)
+//                            .height(50.dp)
+//                            .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
+//                        shape = CircleShape,
+//                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
+//                    ) {
+//                        Text("Share")
+//                    }
+
                 }
 
             }

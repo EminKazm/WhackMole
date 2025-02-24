@@ -3,6 +3,7 @@ package com.syntax.whackmole
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,13 +31,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.syntax.whackmole.ui.theme.DarkerGreen
+import com.syntax.whackmole.ui.theme.LightGreen
 
 @Composable
 fun SettingsScreen(viewModel: GameViewModel) {
     BackHandler(enabled = viewModel.isSettingsVisible) {
         viewModel.hideSettings()
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()
+        .background(Color.LightGray)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -55,16 +61,22 @@ fun SettingsScreen(viewModel: GameViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Sound", fontSize = 20.sp)
+                Text("Sound", fontSize = 20.sp,color = Color.Black)
                 Switch(
                     checked = viewModel.isSoundEnableds,
-                    onCheckedChange = { viewModel.setSoundEnabled(it) }
+                    onCheckedChange = { viewModel.setSoundEnabled(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = LightGreen, // Color when switch is ON
+                        uncheckedThumbColor = Color.Gray, // Color when switch is OFF
+                        checkedTrackColor = DarkerGreen, // Track color when ON
+                        uncheckedTrackColor = Color.DarkGray // Track color when OFF
+                    )
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Difficulty Selection
-            Text("Difficulty", fontSize = 20.sp)
+            Text("Difficulty", fontSize = 20.sp,color = Color.Black)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -74,17 +86,18 @@ fun SettingsScreen(viewModel: GameViewModel) {
                     Button(
                         onClick = { viewModel.setDifficulty(diff) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (viewModel.difficultyy == diff) Color.Green else Color.Gray
-                        )
+                            containerColor = if (viewModel.difficultyy == diff) LightGreen else Color.Gray
+                        ),
+                        shape = ShapeDefaults.Medium
                     ) {
-                        Text(diff.name)
+                        Text(diff.name,color = Color.Black)
                     }
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
 
             // Hammer Skin Selection
-            Text("Hammer Skin", fontSize = 20.sp)
+            Text("Hammer Skin", fontSize = 20.sp,color = Color.Black)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,7 +108,7 @@ fun SettingsScreen(viewModel: GameViewModel) {
                             modifier = Modifier
                                 .size(80.dp)
                                 .background(
-                                    if (viewModel.hammerSkins == skin) Color.Green.copy(alpha = 0.3f) else Color.Transparent
+                                    if (viewModel.hammerSkins == skin) LightGreen else Color.Transparent
                                 )
                                 .padding(4.dp)
                                 .clickable { viewModel.setHammerSkin(skin) }
@@ -115,6 +128,8 @@ fun SettingsScreen(viewModel: GameViewModel) {
             Button(
                 onClick = { viewModel.hideSettings() },
                 modifier = Modifier.width(200.dp).height(60.dp)
+                    .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
             ) {
                 Text("Back", fontSize = 24.sp)
             }

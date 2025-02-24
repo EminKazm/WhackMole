@@ -24,6 +24,7 @@ class GameViewModel : ViewModel() {
     var isSettingsVisible by mutableStateOf(false) // New: Settings visibility
     var isGameOver by mutableStateOf(false) // New: Track game over state
     var isLeaderboardVisible by mutableStateOf(false) // New: Leaderboard visibility
+    var isGuideVisible by mutableStateOf(false) // New: Guide visibility
 
     var isSoundEnableds by mutableStateOf(true) // New: Sound toggle
     var hammerSkins by mutableStateOf(HammerSkin.DEFAULT) // New: Hammer skin selection
@@ -42,7 +43,12 @@ class GameViewModel : ViewModel() {
         isSoundEnableds = sharedPrefs.getBoolean("isSoundEnabled", true)
         hammerSkins = HammerSkin.values()[sharedPrefs.getInt("hammerSkin", 0)]
         loadTopScores() // Load top scores on initialization
-
+        // Check if first launch
+        val isFirstLaunch = sharedPrefs.getBoolean("isFirstLaunch", true)
+        isGuideVisible = isFirstLaunch
+        if (isFirstLaunch) {
+            sharedPrefs.edit().putBoolean("isFirstLaunch", false).apply()
+        }
         tickPlayer = MediaPlayer.create(context, R.raw.tick).apply {
             isLooping = true
         }
@@ -95,12 +101,19 @@ class GameViewModel : ViewModel() {
         isGameScreenVisible = false
         isSettingsVisible = false
     }
+    fun showSplash(){
+        isGameScreenVisible = false
+        isSettingsVisible = false
+        isLeaderboardVisible = false
+    }
     fun hideLeaderboard() {
         isLeaderboardVisible = false
     }
     fun hideSettings() {
         isSettingsVisible = false
     }
+    fun hideGuide() { isGuideVisible = false }
+
     fun stopGameAndReturnToSplash() {
         gameJob?.cancel()
         moleUpdateJob?.cancel()
@@ -154,8 +167,9 @@ class GameViewModel : ViewModel() {
         moleStates = moleStates.map {
             if (Random.nextInt(difficultyy.spawnChance) == 0) { // 20% chance of a mole appearing
                 when (Random.nextInt(100)) {
-                    in 0..69 -> MoleType.REGULAR  // 70% chance
-                    in 70..89 -> MoleType.GOLDEN  // 20% chance
+                    in 0..70 -> MoleType.REGULAR  // 70% chance
+                    in 71..83 -> MoleType.GOLDEN
+                    in 84..86 -> MoleType.TIME  // 20% chance
                     else -> MoleType.BOMB         // 10% chance
                 }
             } else {
@@ -169,23 +183,13 @@ class GameViewModel : ViewModel() {
             sharedPrefs.edit().putInt("highScore", highScore).apply()
         }
     }
-//    fun whackMole(index: Int) {
-//        val moleType = moleStates[index]
-//        if (moleType != MoleType.NONE) {
-//            score += moleType.points
-//            moleStates = moleStates.toMutableList().apply { this[index] = MoleType.NONE }
-//            whackPlayer?.let {
-//                it.seekTo(0)
-//                it.start()
-//            }
-//        }
-//        updateHighScore() // Update high score immediately after scoring
-//
-//    }
+
     fun whackMole(index: Int) {
         val moleType = moleStates[index]
         if (moleType != MoleType.NONE) {
             score += moleType.points
+            timeLeft += moleType.time // Add time bonus
+
             moleStates = moleStates.toMutableList().apply { this[index] = MoleType.NONE }
             if (isSoundEnableds) whackPlayer?.let { it.seekTo(0); it.start() }
             updateHighScore()
