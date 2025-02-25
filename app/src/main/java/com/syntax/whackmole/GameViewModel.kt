@@ -30,6 +30,8 @@ class GameViewModel : ViewModel() {
     var hammerSkins by mutableStateOf(HammerSkin.DEFAULT) // New: Hammer skin selection
     var topScores by mutableStateOf(listOf<Int>()) // New: Top 5 scores
 
+    var rewardedAdWatches by mutableStateOf(0) // New: Track rewarded ad watches
+
     private var moleUpdateJob: Job? = null
 
     private var gameJob: Job? = null
@@ -37,6 +39,10 @@ class GameViewModel : ViewModel() {
     private var whackPlayer: MediaPlayer? = null
     private lateinit var sharedPrefs: android.content.SharedPreferences
 
+    // New: Ad watching
+    companion object {
+        const val MAX_AD_WATCHES = 3
+    }
     fun initializeSounds(context: android.content.Context) {
         sharedPrefs = context.getSharedPreferences("WhackAMolePrefs", Context.MODE_PRIVATE)
         highScore = sharedPrefs.getInt("highScore", 0) // Load high score on init
@@ -66,6 +72,14 @@ class GameViewModel : ViewModel() {
         updatedScores.forEachIndexed { index, value ->
             sharedPrefs.edit().putInt("topScore$index", value).apply()
         }
+    }
+    fun incrementAdWatches() {
+        rewardedAdWatches++
+        sharedPrefs.edit().putInt("rewardedAdWatches", rewardedAdWatches).apply()
+    }
+
+    fun canWatchRewardedAd(): Boolean {
+        return rewardedAdWatches < MAX_AD_WATCHES
     }
     fun setDifficulty(newDifficulty: Difficulty) {
         difficultyy = newDifficulty
@@ -154,6 +168,33 @@ class GameViewModel : ViewModel() {
 
         }
         // Mole update coroutine (uses difficulty-specific interval)
+        moleUpdateJob = viewModelScope.launch {
+            while (timeLeft > 0) {
+                delay(difficultyy.updateInterval)
+                updateMoles()
+            }
+        }
+    }
+    // New method to resume game with extra time
+    fun resumeGameWithExtraTime(extraTime: Int) {
+        gameJob?.cancel()
+        moleUpdateJob?.cancel()
+        timeLeft += extraTime // Add extra time to current timeLeft
+        isGameRunning = true
+        isGameOver = false
+        if (isSoundEnableds) tickPlayer?.start()
+        gameJob = viewModelScope.launch {
+            while (timeLeft > 0) {
+                delay(1000L)
+                updateMoles()
+                timeLeft--
+            }
+            tickPlayer?.pause()
+            updateHighScore()
+            saveTopScores()
+            isGameRunning = false
+            isGameOver = true
+        }
         moleUpdateJob = viewModelScope.launch {
             while (timeLeft > 0) {
                 delay(difficultyy.updateInterval)

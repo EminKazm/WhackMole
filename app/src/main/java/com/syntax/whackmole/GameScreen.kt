@@ -2,12 +2,19 @@ package com.syntax.whackmole
 
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.EaseInOutSine
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,16 +45,22 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -135,6 +148,13 @@ fun GameScreen(viewModel: GameViewModel) {
                     Text("Start", fontSize = 24.sp)
                 }
             }
+            // Add Banner Ad at the bottom
+            BannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
         }
 
         // Hammer cursor - Always visible during game, follows tap
@@ -164,9 +184,35 @@ fun GameScreen(viewModel: GameViewModel) {
     }
 }
 @Composable
+fun BannerAd(modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.BANNER)
+                // Use your Ad Unit ID here; test ID used for now
+                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
+}
+@Composable
 fun GameOverDialog(viewModel: GameViewModel) {
     val context = LocalContext.current
+    val activity = context as? MainActivity
+    val canWatchAd = viewModel.canWatchRewardedAd()
+    val infiniteTransition = rememberInfiniteTransition()
 
+    // Animate scale continuously between 0.9f and 1.1f
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ), label = "PulsingAnimation"
+    )
     Dialog(onDismissRequest = { /* Do nothing to prevent dismissal by clicking outside */ }) {
         Surface(
             shape = MaterialTheme.shapes.medium,
@@ -197,50 +243,52 @@ fun GameOverDialog(viewModel: GameViewModel) {
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(24.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(
-                        onClick = { viewModel.startGame() },
+                    Image(
+                        painter = painterResource(id = R.drawable.replay),
+                        contentDescription = "Share",
                         modifier = Modifier
-                            .width(100.dp)
-                            .height(50.dp)
-                            .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
-
-                    ) {
-                        Text("Replay", fontSize = 15.sp)
-                    }
-                    Button(
-                        onClick = { viewModel.stopGameAndReturnToSplash() },
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(50.dp)
-                            .border(width = 2.dp, color = Color.LightGray, shape = CircleShape), // Border added
-                        shape = CircleShape, // Circular shape
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
+                            .size(50.dp)
+                            .clickable { viewModel.startGame() }
                     )
-                    {
-                        Text("Menu", fontSize = 15.sp)
-                   }
-//                    Button(onClick = {
-//                        val intent = Intent(Intent.ACTION_SEND).apply {
-//                            type = "text/plain"
-//                            putExtra(Intent.EXTRA_TEXT, "I scored ${viewModel.score} in Whack-a-Mole! Download here : https://play.google.com/store/apps/details?id=com.syntax.focusbooster")
-//                        }
-//                        context.startActivity(Intent.createChooser(intent, "Share Score"))
-//                    },
-//                        modifier = Modifier
-//                            .width(100.dp)
-//                            .height(50.dp)
-//                            .border(width = 2.dp, color = Color.LightGray, shape = CircleShape),
-//                        shape = CircleShape,
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray, contentColor = Color.White)
-//                    ) {
-//                        Text("Share")
-//                    }
 
+                    Image(
+                        painter = painterResource(id = R.drawable.menu),
+                        contentDescription = "Menu",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clickable { viewModel.stopGameAndReturnToSplash() }
+                    )
+                    if (canWatchAd) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, // Align items in the center vertically
+                            modifier = Modifier.clickable {
+                                activity?.showRewardedAd {
+                                    viewModel.resumeGameWithExtraTime(10)
+                                    viewModel.incrementAdWatches()
+                                }
+                            }
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ad),
+                                contentDescription = "Watch Ad",
+                                modifier = Modifier.size(50.dp).graphicsLayer(scaleX = scale, scaleY = scale)
+                            )
+
+                            Spacer(modifier = Modifier.width(2.dp)) // Add spacing between image and text
+
+                            Text(
+                                text = "+10",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
                 }
 
             }

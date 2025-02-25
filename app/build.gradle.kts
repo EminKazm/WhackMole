@@ -59,4 +59,6 @@ dependencies {
 
     implementation (libs.androidx.lifecycle.viewmodel.compose)
 
+    implementation (libs.play.services.ads)
+
 }

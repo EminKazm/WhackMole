@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.syntax.whackmole.ui.theme.DarkerGreen
 
 
 @Composable
@@ -70,7 +71,7 @@ fun SplashScreen(viewModel: GameViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(32.dp)) // Moves content down
+            Spacer(modifier = Modifier.height(64.dp)) // Moves content down
 
             Text(
                 text = "Whack-a-Mole",
@@ -84,7 +85,7 @@ fun SplashScreen(viewModel: GameViewModel) {
             Text(
                 text = "High Score: ${viewModel.highScore}",
                 fontSize = 24.sp,
-                color = Color.Gray,
+                color = Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )

@@ -93,14 +93,14 @@ fun MoleHole(
                 if (scale > 0f) {
                     if (moleType.label=="BOMB"){
                         Image(
-                            painter = painterResource(id = R.drawable.bomb),
+                            painter = painterResource(id = R.drawable.mole_with_bomb),
                             contentDescription = "Bomb",
                             modifier = Modifier.size(60.dp)
                         )
                     }
                     else if (moleType.label=="TIME"){
                         Image(
-                            painter = painterResource(id = R.drawable.time),
+                            painter = painterResource(id = R.drawable.clock2),
                             contentDescription = "Time",
                             modifier = Modifier.fillMaxSize()
                         )

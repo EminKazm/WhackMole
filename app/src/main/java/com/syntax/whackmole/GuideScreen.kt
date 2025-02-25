@@ -84,7 +84,7 @@ fun GuideScreen(viewModel: GameViewModel) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
-                    Image(painterResource(R.drawable.bomb), "Bomb Mole", modifier = Modifier.size(40.dp))
+                    Image(painterResource(R.drawable.mole_with_bomb), "Bomb Mole", modifier = Modifier.size(40.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Bomb reduces 15 points!", fontSize = 18.sp, color = Color.Gray)
                 }

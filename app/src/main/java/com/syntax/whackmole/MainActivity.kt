@@ -66,12 +66,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import kotlin.math.pow
 
 class MainActivity : ComponentActivity() {
+    private var rewardedAd: RewardedAd? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Initialize AdMob SDK
+        MobileAds.initialize(this) {}
+        loadRewardedAd() // Load rewarded ad
+
         setContent {
             WhackMoleTheme {
                 Surface {
@@ -80,22 +91,25 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    private fun loadRewardedAd() {
+        val adRequest = AdRequest.Builder().build()
+        RewardedAd.load(this, "ca-app-pub-3940256099942544/5224354917", // Test ID
+            adRequest, object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    rewardedAd = ad
+                }
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    rewardedAd = null
+                }
+            })
+    }
+    fun showRewardedAd(onReward: () -> Unit) {
+        rewardedAd?.let { ad ->
+            ad.show(this) { onReward() }
+            loadRewardedAd() // Preload next ad
+        }
+    }
 }
-@Stable
-// Define Mole types
-enum class MoleType(val points: Int, val color: Color, val label: String,val time:Int=0) {
-    NONE(0, Color.Gray, ""),              // No mole
-    REGULAR(1000, Color.Transparent, "MOLE"),     // Regular mole
-    GOLDEN(250, Color.Transparent, "GOLD"),     // Golden mole (higher points)
-    BOMB(-15, Color.Transparent, "BOMB"),
-    TIME(0, Color.Transparent, "TIME",5)// Bomb mole (lose points)
-}
-enum class Difficulty(val spawnChance: Int, val updateInterval: Long) {
-    EASY(6, 5000L),    // 1/6 chance (~16%), updates every 1.5s
-    MEDIUM(4, 1000L),  // 1/4 chance (25%), updates every 1s
-    HARD(3, 700L)      // 1/3 chance (~33%), updates every 0.7s
-}
-
 
 @Composable
 fun WhackAMoleGame(viewModel: GameViewModel = viewModel()) {
