@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
     }
     private fun loadRewardedAd() {
         val adRequest = AdRequest.Builder().build()
-        RewardedAd.load(this, "ca-app-pub-3940256099942544/5224354917", // Test ID
+        RewardedAd.load(this, "ca-app-pub-7136238635695972/5500585179", // Test ID
             adRequest, object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad

@@ -47,7 +47,7 @@ fun GuideScreen(viewModel: GameViewModel) {
                 modifier = Modifier.size(200.dp)
             )
             Text(
-                text = "Welcome to Whack-a-Mole!",
+                text = "Welcome to Mole Smash!",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black

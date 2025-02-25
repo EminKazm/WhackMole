@@ -71,10 +71,10 @@ fun SplashScreen(viewModel: GameViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(64.dp)) // Moves content down
+            Spacer(modifier = Modifier.height(72.dp)) // Moves content down
 
             Text(
-                text = "Whack-a-Mole",
+                text = "Mole Smash",
                 fontSize = 36.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -92,7 +92,7 @@ fun SplashScreen(viewModel: GameViewModel) {
 
 
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(60.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
