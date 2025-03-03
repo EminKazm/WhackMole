@@ -21,16 +21,16 @@ class GameViewModel : ViewModel() {
     var difficultyy by mutableStateOf(Difficulty.EASY) // Default difficulty
     var isGameRunning by mutableStateOf(false) // Track game state
     var isGameScreenVisible by mutableStateOf(false) // Tracks if game screen is shown
-    var isSettingsVisible by mutableStateOf(false) // New: Settings visibility
-    var isGameOver by mutableStateOf(false) // New: Track game over state
-    var isLeaderboardVisible by mutableStateOf(false) // New: Leaderboard visibility
-    var isGuideVisible by mutableStateOf(false) // New: Guide visibility
+    var isSettingsVisible by mutableStateOf(false) //  Settings visibility
+    var isGameOver by mutableStateOf(false) // Track game over state
+    var isLeaderboardVisible by mutableStateOf(false) // Leaderboard visibility
+    var isGuideVisible by mutableStateOf(false) //  Guide visibility
 
-    var isSoundEnableds by mutableStateOf(true) // New: Sound toggle
-    var hammerSkins by mutableStateOf(HammerSkin.DEFAULT) // New: Hammer skin selection
-    var topScores by mutableStateOf(listOf<Int>()) // New: Top 5 scores
+    var isSoundEnableds by mutableStateOf(true) // Sound toggle
+    var hammerSkins by mutableStateOf(HammerSkin.DEFAULT) // Hammer skin selection
+    var topScores by mutableStateOf(listOf<Int>()) //  Top 5 scores
 
-    var rewardedAdWatches by mutableStateOf(0) // New: Track rewarded ad watches
+    var rewardedAdWatches by mutableStateOf(0) // Track rewarded ad watches
 
     private var moleUpdateJob: Job? = null
 

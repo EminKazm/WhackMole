@@ -38,7 +38,7 @@ fun GuideScreen(viewModel: GameViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, // Aligns the Column contents center
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
@@ -62,7 +62,7 @@ fun GuideScreen(viewModel: GameViewModel) {
 
             // Left-aligned Column for text & images
             Column(
-                modifier = Modifier.fillMaxWidth(), // Makes sure everything is aligned left
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row {
@@ -74,13 +74,13 @@ fun GuideScreen(viewModel: GameViewModel) {
                 Row {
                     Image(painterResource(R.drawable.mole), "Regular Mole", modifier = Modifier.size(40.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Regular moles give 1000 points.", fontSize = 18.sp, color = Color.Gray)
+                    Text("Regular moles give 10 points.", fontSize = 18.sp, color = Color.Gray)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Image(painterResource(R.drawable.mole2), "Golden Mole", modifier = Modifier.size(40.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Golden moles give 1000 points!", fontSize = 18.sp, color = Color.Gray)
+                    Text("Golden moles give 50 points!", fontSize = 18.sp, color = Color.Gray)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {

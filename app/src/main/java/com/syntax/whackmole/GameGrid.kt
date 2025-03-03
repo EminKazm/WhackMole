@@ -24,7 +24,7 @@ fun GameGrid(viewModel: GameViewModel, hammerPosition: Offset, isHammerWhacking:
         items(25) { index ->
             MoleHole(
                 moleType = viewModel.moleStates[index],
-                difficulty = viewModel.difficultyy, // Fixed typo: difficultyy -> difficulty
+                difficulty = viewModel.difficultyy,
                 position = with(density) {
                     Offset(
                         (index % 5 * 76 + 38).dp.toPx(), // Adjusted for 60dp + 16dp total padding
