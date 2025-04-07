@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "156557554890",
+    "project_id": "mole-smash-eb098",
+    "storage_bucket": "mole-smash-eb098.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156557554890:android:87a55e0456871d71b83033",
+        "android_client_info": {
+          "package_name": "com.syntax.whackmole"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv4383TVpAtmryoK4fzgudqoX2Sj8zLzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
